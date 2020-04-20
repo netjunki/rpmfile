@@ -182,8 +182,8 @@ class RPMFile(object):
                     raise NoLZMAModuleError("lzma module not present")
                 self._data_file = lzma.LZMAFile(fileobj)
             if self.headers["archive_compression"] == b"zstd":
-                if not getattr(sys.modules[__name__], "zstd", False):
-                    raise NoZSTANDARDModuleError("zstd module not present")
+                if not getattr(sys.modules[__name__], "zstandard", False):
+                    raise NoZSTANDARDModuleError("zstandard module not present")
                 self._data_file = zstandard.ZstdDecompressor().stream_reader(fileobj)
             else:
                 self._data_file = gzip.GzipFile(fileobj=fileobj)
