@@ -8,6 +8,10 @@ try:
     import lzma
 except ImportError:
     pass
+try:
+    import zstandard
+except ImportError:
+    pass
 import struct
 from rpmfile import cpiofile
 from functools import wraps
@@ -17,6 +21,9 @@ pad = lambda fileobj: (4 - (fileobj.tell() % 4)) % 4
 
 
 class NoLZMAModuleError(NotImplementedError):
+    pass
+
+class NoZSTANDARDModuleError(NotImplementedError):
     pass
 
 
@@ -174,6 +181,10 @@ class RPMFile(object):
                 if not getattr(sys.modules[__name__], "lzma", False):
                     raise NoLZMAModuleError("lzma module not present")
                 self._data_file = lzma.LZMAFile(fileobj)
+            if self.headers["archive_compression"] == b"zstd":
+                if not getattr(sys.modules[__name__], "zstd", False):
+                    raise NoZSTANDARDModuleError("zstd module not present")
+                self._data_file = zstandard.ZstdDecompressor().stream_reader(fileobj)
             else:
                 self._data_file = gzip.GzipFile(fileobj=fileobj)
 
